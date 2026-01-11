@@ -1,4 +1,4 @@
-# Ante Tech - Hosting Comparison Landing Page
+# Ante Technologies Task
 
 Next.js 15+ ilə hazırlanmış hosting müqayisə səhifəsi.
 
@@ -64,4 +64,3 @@ http://localhost:3000
 http://localhost:3000/?gclid=TEST123
 ```
 
-Sonra "VIEW PLAN" buttonuna klik et - URL-in sonunda `TEST123` görünəcək.
