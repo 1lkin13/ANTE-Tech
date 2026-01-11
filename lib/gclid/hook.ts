@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useState, useEffect, useCallback } from 'react';
 import { appendGCLID } from './appender';
 
@@ -28,22 +27,36 @@ function getGCLIDFromCookie(): string | null {
   return null;
 }
 
+// URL-dən gclid parametrini al
+function getGCLIDFromURL(paramName: string = 'gclid'): string | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  return params.get(paramName);
+}
+
 // GCLID hook - URL-dən alıb affiliate linklərə əlavə edir
 export function useGCLID(paramName: string = 'gclid') {
-  const searchParams = useSearchParams();
   const [gclid, setGclid] = useState<string | null>(null);
   
   useEffect(() => {
-    const gclidFromUrl = searchParams.get(paramName);
+    const updateGCLID = () => {
+      const gclidFromUrl = getGCLIDFromURL(paramName);
+      
+      if (gclidFromUrl) {
+        setGCLIDCookie(gclidFromUrl);
+        setGclid(gclidFromUrl);
+      } else {
+        const storedGclid = getGCLIDFromCookie();
+        setGclid(storedGclid);
+      }
+    };
+
+    updateGCLID();
     
-    if (gclidFromUrl) {
-      setGCLIDCookie(gclidFromUrl);
-      setGclid(gclidFromUrl);
-    } else {
-      const storedGclid = getGCLIDFromCookie();
-      setGclid(storedGclid);
-    }
-  }, [searchParams, paramName]);
+    // URL dəyişəndə yenilə
+    window.addEventListener('popstate', updateGCLID);
+    return () => window.removeEventListener('popstate', updateGCLID);
+  }, [paramName]);
 
   const appendToUrl = useCallback((baseUrl: string) => {
     return appendGCLID(baseUrl, gclid);
